@@ -4,57 +4,30 @@ import * as S from "./styles";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const schemaForm = z.object({
-  name: z
-    .string()
-    .nonempty('o campo "nome" não pode estar vazio')
-    .toUpperCase(),
-  email: z
-    .string()
-    .nonempty('o campo "email" não pode estar vazio')
-    .email("escreva um email com formato válido")
-    .toLowerCase()
-    .refine(email => {
-      return email.endsWith('gmail.com')
-    }, 'o email deve terminar com "gmail.com"'),
-  password: z
-    .string()
-    .nonempty("o campo senha é obrigatório")
-    .min(6, "a senha deve ter no mínimo 6 caracteres")
-});
-
-type FormProps = z.infer<typeof schemaForm>;
-
 const Home = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormProps>({
-    mode: "all",
-    resolver: zodResolver(schemaForm),
-  });
 
-  const handleSubmitData = (data: FormProps) => {
-    console.log(data);
-  };
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    mode: 'all',
+    criteriaMode: 'all'
+  })
 
-  console.log(errors);
+  const handleSubmitData = (data: any) => {
+    console.log(data)
+  }
+
+  console.log(errors)
 
   return (
     <S.Container>
       <S.Form action="" onSubmit={handleSubmit(handleSubmitData)}>
         <label htmlFor="">Nome</label>
-        <input type="text" {...register("name")} />
-        {errors.name && <span>{errors.name.message}</span>}
+        <input type="text" {...register('name')}/>
 
         <label htmlFor="">Email</label>
-        <input type="email" {...register("email")} />
-        {errors.email && <span>{errors.email.message}</span>}
+        <input type="email" {...register('email')}/>
 
         <label htmlFor="">Senha</label>
-        <input type="password" {...register("password")} />
-        {errors.password && <span>{errors.password.message}</span>}
+        <input type="password" {...register('password')}/>
 
         <button>Salvar</button>
       </S.Form>
