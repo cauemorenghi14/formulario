@@ -16,9 +16,26 @@ const schemaCep = z.object({
     cidade: z.string().nonempty("Este campo é obrigatório"),
     estado: z.string().nonempty("Este campo é obrigatório"),
   }),
-});
+}).transform((field) => ({
+    address: {
+        cep: field.address.cep,
+        rua: field.address.rua,
+        numero: field.address.numero,
+        complemento: field.address.complemento,
+        bairro: field.address.bairro,
+        cidade: field.address.cidade,
+        estado: field.address.estado,
+    }
+}))
 
 type FormProps = z.infer<typeof schemaCep>;
+type AddressProps = {
+    bairro: string,
+    complemento: string,
+    localidade: string,
+    logradouro: string,
+    uf: string
+}
 
 const FormCep = () => {
   const {
@@ -26,6 +43,7 @@ const FormCep = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue
   } = useForm<FormProps>({
     mode: "all",
     criteriaMode: "all",
@@ -48,18 +66,29 @@ const FormCep = () => {
   };
 
   const cep = watch('address.cep')
+  
+  const handleSetData = useCallback((data: AddressProps) => {
+    setValue('address.bairro', data.bairro)
+    setValue('address.cidade', data.localidade)
+    setValue('address.estado', data.uf)
+    setValue('address.rua', data.logradouro)
+    setValue('address.complemento', data.complemento)
+  }, [setValue])
 
   const handleFetchAddress = useCallback(async (cep: string) => {
-    const { data } = await axios.get(`https://viacep.com.br/ws/${cep}/json/`)
+    const { data } = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
 
-    console.log(data)
-  }, [])
+    handleSetData(data)
+  },[handleSetData])
+
 
   useEffect(() => {
-    if (cep.length !== 8) return;
+    setValue('address.cep', cep)
+
+    if (cep.length !== 8) return
 
     handleFetchAddress(cep)
-  }, [handleFetchAddress, cep]);
+  }, [handleFetchAddress, cep, setValue]);
 
   return (
     <S.Container>
