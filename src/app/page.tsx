@@ -1,5 +1,5 @@
 "use client";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import * as S from "./styles";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,7 @@ const schemaForm = z.object({
   email: z.string().nonempty('o campo "email" é obirgatório').email('formato de email inválido').toLowerCase().refine(email => {
     return email.endsWith('gmail.com')
   }, 'o email deve terminar com "gmail.com".'),
-  password: z.string().nonempty('o campo "senha" é obrigatório').min(6, 'a senha deve conter no mínimo 6 caracteres')
+  password: z.string().nonempty('o campo "senha" é obrigatório').min(6, 'a senha deve conter no mínimo 6 caracteres'),
 })
 
 type FormProps = z.infer<typeof schemaForm>
@@ -19,7 +19,12 @@ const Home = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormProps>({
     mode: 'all',
     criteriaMode: 'all',
-    resolver: zodResolver(schemaForm)
+    resolver: zodResolver(schemaForm),
+    defaultValues: {
+      email: '',
+      name: '',
+      password: ''
+    }
   })
 
   const handleSubmitData = (data: FormProps) => {
